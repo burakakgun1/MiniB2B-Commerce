@@ -1,0 +1,130 @@
+@model MiniB2B.Core.Models.OrderDetailDto
+@{
+    ViewData["Title"] = "Sipariş Detayı - " + Model.OrderNumber;
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="h3 fw-bold mb-0">Sipariş İnceleme: @Model.OrderNumber</h2>
+        <small class="text-muted">Tarih: @Model.OrderDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</small>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Sipariş Listesine Dön
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">Sipariş Kalemleri (Tarihsel Fiyat Korumalı)</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 140px;">Ürün Kodu</th>
+                            <th>Ürün Adı</th>
+                            <th class="text-end" style="width: 130px;">Birim Fiyat</th>
+                            <th class="text-center" style="width: 90px;">Adet</th>
+                            <th class="text-end" style="width: 140px;">Toplam Tutar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td><code>@item.ProductCode</code></td>
+                                <td class="fw-semibold">@item.ProductName</td>
+                                <td class="text-end">@item.UnitPrice.ToString("N2") ₺</td>
+                                <td class="text-center fw-bold">@item.Quantity</td>
+                                <td class="text-end fw-bold text-primary">@item.TotalPrice.ToString("N2") ₺</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="4" class="text-end">Sipariş Toplamı:</th>
+                            <th class="text-end fs-5 text-primary">@Model.TotalAmount.ToString("N2") ₺</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Notes))
+        {
+            <div class="card border-0 shadow-sm p-4">
+                <h6 class="fw-bold text-muted mb-2">Müşteri Notu</h6>
+                <p class="mb-0 text-dark">@Model.Notes</p>
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            @if (Model.OrderStatus == OrderStatus.Pending)
+            {
+                <div class="d-flex gap-2 mb-3">
+                    <form asp-action="UpdateStatus" method="post" class="flex-grow-1">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="OrderId" value="@Model.Id" />
+                        <input type="hidden" name="OrderStatus" value="@OrderStatus.Approved" />
+                        <button type="submit" class="btn btn-success w-100 fw-semibold btn-sm py-2">
+                            <i class="bi bi-check-circle me-1"></i> Siparişi Onayla
+                        </button>
+                    </form>
+                    <form asp-action="UpdateStatus" method="post" class="flex-grow-1">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="OrderId" value="@Model.Id" />
+                        <input type="hidden" name="OrderStatus" value="@OrderStatus.Rejected" />
+                        <button type="submit" class="btn btn-danger w-100 fw-semibold btn-sm py-2" onclick="return confirm('Bu siparişi reddetmek istediğinize emin misiniz?');">
+                            <i class="bi bi-x-circle me-1"></i> Siparişi Reddet
+                        </button>
+                    </form>
+                </div>
+                <div class="text-center text-muted small mb-3">─ veya diğer duruma geçiş yapın ─</div>
+            }
+
+            <form asp-action="UpdateStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="OrderId" value="@Model.Id" />
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Mevcut Durum</label>
+                    <select name="OrderStatus" class="form-select mb-3">
+                        <option value="@OrderStatus.Pending" selected="@(Model.OrderStatus == OrderStatus.Pending)">Onay Bekliyor</option>
+                        <option value="@OrderStatus.Approved" selected="@(Model.OrderStatus == OrderStatus.Approved)">Onaylandı</option>
+                        <option value="@OrderStatus.Rejected" selected="@(Model.OrderStatus == OrderStatus.Rejected)">Reddedildi</option>
+                        <option value="@OrderStatus.Shipped" selected="@(Model.OrderStatus == OrderStatus.Shipped)">Kargoya Verildi</option>
+                        <option value="@OrderStatus.Completed" selected="@(Model.OrderStatus == OrderStatus.Completed)">Tamamlandı</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-semibold">
+                    <i class="bi bi-arrow-repeat me-1"></i> Durumu Güncelle
+                </button>
+            </form>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Müşteri Bilgileri</h5>
+            <div class="mb-2">
+                <small class="text-muted d-block">Müşteri Ad Soyad:</small>
+                <span class="fw-bold">@Model.CustomerName</span>
+            </div>
+            <div class="mb-2">
+                <small class="text-muted d-block">E-posta:</small>
+                <span>@Model.CustomerEmail</span>
+            </div>
+            <div class="mb-2">
+                <small class="text-muted d-block">Telefon:</small>
+                <span>@(Model.CustomerPhone ?? "-")</span>
+            </div>
+            <div class="mb-0">
+                <small class="text-muted d-block">Sipariş Zamanı:</small>
+                <span>@Model.OrderDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+            </div>
+        </div>
+    </div>
+</div>

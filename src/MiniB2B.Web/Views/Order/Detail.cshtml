@@ -1,0 +1,130 @@
+@model MiniB2B.Core.Models.OrderDetailDto
+@{
+    ViewData["Title"] = "Sipariş Detayı - " + Model.OrderNumber;
+}
+
+<div class="container-fluid px-lg-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0">
+                <i class="bi bi-file-text text-primary me-2"></i>Sipariş Detayı: @Model.OrderNumber
+            </h3>
+            <small class="text-muted">Tarih: @Model.OrderDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</small>
+        </div>
+        <a asp-action="MyOrders" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Siparişlerime Dön
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0">Sipariş Kalemleri (Tarihsel Snapshot)</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 140px;">Ürün Kodu</th>
+                                <th>Ürün Adı</th>
+                                <th class="text-end" style="width: 130px;">Birim Fiyat</th>
+                                <th class="text-center" style="width: 90px;">Adet</th>
+                                <th class="text-end" style="width: 140px;">Toplam Tutar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td><code>@item.ProductCode</code></td>
+                                    <td class="fw-semibold">@item.ProductName</td>
+                                    <td class="text-end">@item.UnitPrice.ToString("N2") ₺</td>
+                                    <td class="text-center fw-bold">@item.Quantity</td>
+                                    <td class="text-end fw-bold text-primary">@item.TotalPrice.ToString("N2") ₺</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="4" class="text-end">Genel Toplam:</th>
+                                <th class="text-end fs-5 text-primary">@Model.TotalAmount.ToString("N2") ₺</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div class="card border-0 shadow-sm p-4">
+                    <h6 class="fw-bold text-muted mb-2">Sipariş Notu / Teslimat Açıklaması</h6>
+                    <p class="mb-0 text-dark">@Model.Notes</p>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-3 border-bottom pb-2">Sipariş Bilgileri</h5>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small">Sipariş Numarası:</span>
+                    <span class="fw-bold text-dark">@Model.OrderNumber</span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small">Sipariş Durumu:</span>
+                    <div class="mt-1">
+                        @switch (Model.OrderStatus)
+                        {
+                            case OrderStatus.Pending:
+                                <span class="badge badge-status-pending border px-3 py-2 fs-6">
+                                    <i class="bi bi-clock-history me-1"></i>Onay Bekliyor
+                                </span>
+                                break;
+                            case OrderStatus.Approved:
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6">
+                                    <i class="bi bi-check-circle me-1"></i>Onaylandı
+                                </span>
+                                break;
+                            case OrderStatus.Rejected:
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6">
+                                    <i class="bi bi-x-circle me-1"></i>Reddedildi
+                                </span>
+                                break;
+                            case OrderStatus.Shipped:
+                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-3 py-2 fs-6">
+                                    <i class="bi bi-truck me-1"></i>Kargoya Verildi
+                                </span>
+                                break;
+                            case OrderStatus.Completed:
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6">
+                                    <i class="bi bi-check-all me-1"></i>Tamamlandı
+                                </span>
+                                break;
+                        }
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small">Sipariş Tarihi:</span>
+                    <span class="fw-semibold">@Model.OrderDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small">Müşteri / Sipariş Veren:</span>
+                    <span class="fw-semibold">@Model.CustomerName</span>
+                    <small class="text-muted d-block">@Model.CustomerEmail</small>
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Toplam Tutar:</span>
+                    <span class="fs-4 fw-bold text-primary">@Model.TotalAmount.ToString("N2") ₺</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

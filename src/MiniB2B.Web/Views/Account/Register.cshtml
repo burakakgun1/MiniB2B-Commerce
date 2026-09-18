@@ -1,0 +1,84 @@
+@model MiniB2B.Core.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Müşteri Kaydı";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex p-3 rounded-circle bg-primary-subtle text-primary mb-3">
+                            <i class="bi bi-person-plus-fill fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold">Yeni Müşteri Kaydı</h4>
+                        <p class="text-muted small">Hesabınızı oluşturarak hızlı sipariş vermeye başlayın.</p>
+                    </div>
+
+                    <form asp-action="Register" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName" class="form-label small fw-bold text-muted"></label>
+                                <input asp-for="FirstName" class="form-control" placeholder="Adınız" />
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label small fw-bold text-muted"></label>
+                                <input asp-for="LastName" class="form-control" placeholder="Soyadınız" />
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label small fw-bold text-muted"></label>
+                            <input asp-for="Email" class="form-control" placeholder="ornek@eposta.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Username" class="form-label small fw-bold text-muted"></label>
+                                <input asp-for="Username" class="form-control" placeholder="kullaniciadi" />
+                                <span asp-validation-for="Username" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label small fw-bold text-muted"></label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="0555 123 45 67" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="Password" class="form-label small fw-bold text-muted"></label>
+                                <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ConfirmPassword" class="form-label small fw-bold text-muted"></label>
+                                <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                            <i class="bi bi-check-circle me-1"></i> Hesabımı Oluştur
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <span class="small text-muted">Zaten kayıtlı bir hesabınız var mı?</span>
+                        <a asp-action="Login" class="small fw-bold text-decoration-none ms-1">Giriş Yap</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

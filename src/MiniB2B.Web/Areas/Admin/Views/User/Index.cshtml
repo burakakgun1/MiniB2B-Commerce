@@ -1,0 +1,183 @@
+@model MiniB2B.Core.Models.PagedResult<MiniB2B.Core.Models.UserListDto>
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+    var filter = ViewBag.Filter as MiniB2B.Core.Models.UserFilterDto ?? new();
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="h3 fw-bold mb-0">Kullanıcı & Müşteri Yönetimi</h2>
+        <small class="text-muted">Sistemde kayıtlı yöneticileri ve müşteri hesaplarını listeleyin, görüntüleyin ve düzenleyin</small>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form method="get" asp-action="Index">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold text-muted mb-1">Arama</label>
+                    <input type="text" name="SearchText" value="@filter.SearchText" class="form-control form-control-sm" placeholder="Ad, soyad, e-posta, kullanıcı adı veya telefon..." />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Rol</label>
+                    <select name="Role" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">Tüm Roller</option>
+                        <option value="@UserRole.Customer" selected="@(filter.Role == UserRole.Customer)">Müşteri</option>
+                        <option value="@UserRole.Admin" selected="@(filter.Role == UserRole.Admin)">Yönetici</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Durum</label>
+                    <select name="IsActive" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">Tümü</option>
+                        <option value="true" selected="@(filter.IsActive == true)">Aktifler</option>
+                        <option value="false" selected="@(filter.IsActive == false)">Pasifler</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-1">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">
+                        <i class="bi bi-funnel-fill me-1"></i>Filtrele
+                    </button>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary" title="Sıfırla">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>E-posta</th>
+                    <th>Telefon</th>
+                    <th class="text-center">Rol</th>
+                    <th class="text-center">Sipariş</th>
+                    <th class="text-center">Durum</th>
+                    <th>Kayıt Tarihi</th>
+                    <th class="text-center" style="width: 140px;">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Items.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-muted">Kayıtlı kullanıcı bulunamadı.</td>
+                    </tr>
+                }
+                @foreach (var user in Model.Items)
+                {
+                    <tr class="@(!user.IsActive ? "table-light text-muted opacity-75" : "")">
+                        <td class="fw-bold">@user.FullName</td>
+                        <td><code>@user.Username</code></td>
+                        <td>@user.Email</td>
+                        <td>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? "-" : user.PhoneNumber)</td>
+                        <td class="text-center">
+                            @if (user.Role == UserRole.Admin)
+                            {
+                                <span class="badge bg-danger">Yönetici</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-primary">Müşteri</span>
+                            }
+                        </td>
+                        <td class="text-center fw-semibold">@user.OrderCount</td>
+                        <td class="text-center">
+                            @if (user.IsActive)
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Pasif</span>
+                            }
+                        </td>
+                        <td class="small text-muted">@user.CreatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a asp-action="Detail" asp-route-id="@user.Id" class="btn btn-outline-info" title="Detayları Görüntüle">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-outline-primary" title="Düzenle">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                @if (!user.Username.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    @if (user.IsActive)
+                                    {
+                                        <form asp-action="ToggleStatus" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Bu kullanıcıyı pasife almak istediğinize emin misiniz?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-secondary" title="Pasife Al">
+                                                <i class="bi bi-person-slash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="ToggleStatus" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Bu kullanıcıyı aktife almak istediğinize emin misiniz?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-success" title="Aktife Al">
+                                                <i class="bi bi-person-check"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1 || Model.TotalCount > 0)
+    {
+        <div class="card-footer bg-white py-3 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div class="text-muted small">
+                Toplam <strong>@Model.TotalCount</strong> kullanıcı | Sayfa <strong>@Model.PageNumber</strong> / <strong>@Math.Max(1, Model.TotalPages)</strong>
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Kullanıcı Sayfalama">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-PageNumber="@(Model.PageNumber - 1)"
+                               asp-route-SearchText="@filter.SearchText"
+                               asp-route-Role="@filter.Role"
+                               asp-route-IsActive="@filter.IsActive">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        @for (int p = 1; p <= Model.TotalPages; p++)
+                        {
+                            <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" asp-action="Index"
+                                   asp-route-PageNumber="@p"
+                                   asp-route-SearchText="@filter.SearchText"
+                                   asp-route-Role="@filter.Role"
+                                   asp-route-IsActive="@filter.IsActive">@p</a>
+                            </li>
+                        }
+                        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-PageNumber="@(Model.PageNumber + 1)"
+                               asp-route-SearchText="@filter.SearchText"
+                               asp-route-Role="@filter.Role"
+                               asp-route-IsActive="@filter.IsActive">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    }
+</div>

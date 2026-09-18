@@ -1,0 +1,187 @@
+@{
+    ViewData["Title"] = "Yönetim Gösterge Paneli";
+    var recentOrders = ViewBag.RecentOrders as List<MiniB2B.Core.Models.OrderListDto> ?? new();
+    var lowStockProducts = ViewBag.LowStockProducts as List<MiniB2B.Core.Models.ProductListItemDto> ?? new();
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="h3 fw-bold mb-0">Yönetim Paneli & İstatistikler</h2>
+        <small class="text-muted">Mini B2B E-Ticaret Sistemi genel durum özeti</small>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a asp-area="Admin" asp-controller="Product" asp-action="Create" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Yeni Ürün Ekle
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="kpi-label">Toplam Sipariş</span>
+                <div class="p-2 bg-primary-subtle text-primary rounded">
+                    <i class="bi bi-cart-check fs-4"></i>
+                </div>
+            </div>
+            <div class="kpi-value">@ViewBag.TotalOrders</div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="kpi-label">Toplam Ciro</span>
+                <div class="p-2 bg-success-subtle text-success rounded">
+                    <i class="bi bi-currency-dollar fs-4"></i>
+                </div>
+            </div>
+            <div class="kpi-value">@(((decimal)ViewBag.TotalRevenue).ToString("N2")) ₺</div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="kpi-label">Kayıtlı Müşteriler</span>
+                <div class="p-2 bg-info-subtle text-info rounded">
+                    <i class="bi bi-people fs-4"></i>
+                </div>
+            </div>
+            <div class="kpi-value">@ViewBag.TotalUsers</div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="kpi-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="kpi-label">Kritik Stok Uyarısı</span>
+                <div class="p-2 bg-warning-subtle text-warning-emphasis rounded">
+                    <i class="bi bi-exclamation-triangle fs-4"></i>
+                </div>
+            </div>
+            <div class="kpi-value text-warning-emphasis">@ViewBag.CriticalStockCount</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Son Gelen Siparişler</h5>
+                <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="small text-decoration-none">
+                    Tümünü Gör <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sipariş No</th>
+                            <th>Müşteri</th>
+                            <th>Tarih</th>
+                            <th class="text-end">Tutar</th>
+                            <th class="text-center">Durum</th>
+                            <th class="text-center">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!recentOrders.Any())
+                        {
+                            <tr><td colspan="6" class="text-center py-4 text-muted">Kayıtlı sipariş yok.</td></tr>
+                        }
+                        @foreach (var order in recentOrders)
+                        {
+                            <tr>
+                                <td class="fw-bold">@order.OrderNumber</td>
+                                <td>@order.CustomerName</td>
+                                <td class="small">@order.OrderDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                                <td class="text-end fw-bold">@order.TotalAmount.ToString("N2") ₺</td>
+                                <td class="text-center">
+                                    @switch (order.OrderStatus)
+                                    {
+                                        case OrderStatus.Pending:
+                                            <span class="badge badge-status-pending border px-2 py-1">Onay Bekliyor</span>
+                                            break;
+                                        case OrderStatus.Approved:
+                                            <span class="badge bg-success-subtle text-success">Onaylandı</span>
+                                            break;
+                                        case OrderStatus.Rejected:
+                                            <span class="badge bg-danger-subtle text-danger">Reddedildi</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@order.OrderStatus</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a asp-area="Admin" asp-controller="Order" asp-action="Detail" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-danger">
+                    <i class="bi bi-exclamation-diamond-fill me-1"></i> Kritik & Biten Stoklar
+                </h5>
+                <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="small text-decoration-none">
+                    Ürünler <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ürün Kodu</th>
+                            <th>Mevcut Stok</th>
+                            <th>Kritik Eşik</th>
+                            <th class="text-center">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!lowStockProducts.Any())
+                        {
+                            <tr><td colspan="4" class="text-center py-4 text-muted">Kritik stokta ürün yok.</td></tr>
+                        }
+                        @foreach (var prod in lowStockProducts)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">@prod.ProductCode</div>
+                                    <small class="text-muted d-inline-block text-truncate" style="max-width: 150px;">@prod.Name</small>
+                                </td>
+                                <td>
+                                    @if (prod.StockQuantity <= 0)
+                                    {
+                                        <span class="badge bg-danger">Tükendi (0)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">@prod.StockQuantity Adet</span>
+                                    }
+                                </td>
+                                <td>@prod.CriticalStockLevel Adet</td>
+                                <td class="text-center">
+                                    <a asp-area="Admin" asp-controller="Product" asp-action="Edit" asp-route-id="@prod.Id" class="btn btn-sm btn-outline-secondary" title="Düzenle">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

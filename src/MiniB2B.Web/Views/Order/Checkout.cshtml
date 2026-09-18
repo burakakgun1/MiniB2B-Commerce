@@ -1,0 +1,107 @@
+@model MiniB2B.Core.Models.CreateOrderRequest
+@{
+    ViewData["Title"] = "Siparişi Tamamla";
+    var cart = ViewBag.Cart as MiniB2B.Core.Models.CartDto;
+}
+
+<div class="container-fluid px-lg-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0">
+                <i class="bi bi-shield-check text-primary me-2"></i>Sipariş Onayı ve Tamamlama
+            </h3>
+            <small class="text-muted">Lütfen sipariş detaylarınızı inceleyip onaylayınız.</small>
+        </div>
+        <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Sepete Dön
+        </a>
+    </div>
+
+    @if (cart != null)
+    {
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-0">Sipariş Edilecek Ürünler</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ürün Kodu & Adı</th>
+                                    <th class="text-end" style="width: 140px;">Birim Fiyat</th>
+                                    <th class="text-center" style="width: 100px;">Adet</th>
+                                    <th class="text-end" style="width: 140px;">Toplam Tutar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in cart.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold text-dark">@item.ProductName</div>
+                                            <small class="text-muted">Kod: <code>@item.ProductCode</code> | Marka: @item.Brand</small>
+                                        </td>
+                                        <td class="text-end">@item.UnitPrice.ToString("N2") ₺</td>
+                                        <td class="text-center fw-bold">@item.Quantity</td>
+                                        <td class="text-end fw-bold text-primary">@item.TotalPrice.ToString("N2") ₺</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm p-4">
+                    <h5 class="fw-bold mb-3">Sipariş Notları & Teslimat Açıklaması</h5>
+                    <form asp-action="Checkout" method="post" id="orderForm">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label small text-muted">Depo teslimatı, sevk irsaliyesi veya faturaya dair eklemek istediğiniz özel bir not var mı?</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Örn: Hafta içi 09:00 - 17:00 saatleri arasında ana depoya teslim edilmelidir."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger small"></span>
+                        </div>
+
+                        <div class="alert alert-light border py-2 small mb-0 text-muted">
+                            <i class="bi bi-shield-check text-primary me-1"></i> Siparişinizi onaylamak üzeresiniz. Lütfen bilgilerinizi kontrol ediniz.
+                        </div>
+
+                        <div class="d-lg-none mt-3">
+                            <button type="submit" class="btn btn-success w-100 py-3 fw-bold" onclick="return confirm('Siparişinizi onaylamak istediğinize emin misiniz?');">
+                                <i class="bi bi-check2-circle me-1"></i> Siparişi Onayla (@cart.TotalAmount.ToString("N2") ₺)
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 20px;">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Ödeme & Tutar Özeti</h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Ürün Sayısı:</span>
+                        <span class="fw-semibold">@cart.Items.Count Kalem (@cart.TotalQuantity Adet)</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Ödeme Şekli:</span>
+                        <span class="badge bg-secondary">Cari Hesap / B2B Açık Hesap</span>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fs-5 fw-bold">Toplam Tutar:</span>
+                        <span class="fs-4 fw-bold text-primary">@cart.TotalAmount.ToString("N2") ₺</span>
+                    </div>
+
+                    <button type="submit" form="orderForm" class="btn btn-success w-100 py-3 fw-bold fs-5 shadow-sm" onclick="return confirm('Siparişinizi onaylamak istediğinize emin misiniz?');">
+                        <i class="bi bi-check2-circle me-1"></i> Siparişi Onayla
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>

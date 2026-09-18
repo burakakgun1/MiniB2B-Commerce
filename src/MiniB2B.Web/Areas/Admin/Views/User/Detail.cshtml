@@ -1,0 +1,143 @@
+@model MiniB2B.Core.Models.UserDetailDto
+@{
+    ViewData["Title"] = "Kullanıcı Detayı - " + Model.FullName;
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="h3 fw-bold mb-0">Kullanıcı Bilgileri: @Model.FullName</h2>
+        <small class="text-muted"><code>@Model.Username</code> hesabına ait detaylı profil ve sipariş dökümü</small>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i> Bilgileri Düzenle
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Kullanıcı Listesine Dön
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <div class="text-center pb-3 border-bottom mb-3">
+                <div class="avatar-placeholder rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width: 72px; height: 72px; font-size: 1.8rem; font-weight: 700;">
+                    @(!string.IsNullOrEmpty(Model.FirstName) ? Model.FirstName[0].ToString() : "U")
+                </div>
+                <h5 class="fw-bold mb-1">@Model.FullName</h5>
+                <span class="badge @(Model.Role == UserRole.Admin ? "bg-danger" : "bg-primary")">
+                    @(Model.Role == UserRole.Admin ? "Sistem Yöneticisi" : "Müşteri / Bayi")
+                </span>
+                <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary") ms-1">
+                    @(Model.IsActive ? "Aktif" : "Pasif")
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <small class="text-muted d-block fw-semibold">Kullanıcı Adı</small>
+                <code>@Model.Username</code>
+            </div>
+            <div class="mb-3">
+                <small class="text-muted d-block fw-semibold">E-posta</small>
+                <span>@Model.Email</span>
+            </div>
+            <div class="mb-3">
+                <small class="text-muted d-block fw-semibold">Telefon Numarası</small>
+                <span>@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "-" : Model.PhoneNumber)</span>
+            </div>
+            <div class="mb-3">
+                <small class="text-muted d-block fw-semibold">Hesap Oluşturulma Tarihi</small>
+                <span>@Model.CreatedDate.ToLocalTime().ToString("dd MMMM yyyy HH:mm")</span>
+            </div>
+            <div class="mb-3">
+                <small class="text-muted d-block fw-semibold">Toplam Tamamlanan Harcama</small>
+                <span class="fw-bold text-success fs-5">@Model.TotalSpent.ToString("N2") ₺</span>
+            </div>
+
+            @if (!Model.Username.Equals("admin", StringComparison.OrdinalIgnoreCase))
+            {
+                <hr class="my-3" />
+                <form asp-action="ToggleStatus" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Kullanıcı durumunu değiştirmek istediğinize emin misiniz?');">
+                    @Html.AntiForgeryToken()
+                    @if (Model.IsActive)
+                    {
+                        <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
+                            <i class="bi bi-person-slash me-1"></i> Hesabı Pasife Al
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-outline-success w-100 btn-sm">
+                            <i class="bi bi-person-check me-1"></i> Hesabı Aktif Et
+                        </button>
+                    }
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Kullanıcının Son Siparişleri (@Model.OrderCount Toplam)</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sipariş No</th>
+                            <th>Tarih</th>
+                            <th class="text-center">Kalem</th>
+                            <th class="text-end">Tutar</th>
+                            <th class="text-center">Durum</th>
+                            <th class="text-center" style="width: 90px;">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.RecentOrders.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">Bu kullanıcıya ait henüz bir sipariş bulunmuyor.</td>
+                            </tr>
+                        }
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <tr>
+                                <td class="fw-bold">@order.OrderNumber</td>
+                                <td class="small">@order.OrderDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                                <td class="text-center">@order.ItemCount</td>
+                                <td class="text-end fw-bold">@order.TotalAmount.ToString("N2") ₺</td>
+                                <td class="text-center">
+                                    @switch (order.OrderStatus)
+                                    {
+                                        case OrderStatus.Pending:
+                                            <span class="badge badge-status-pending border px-2 py-1">Onay Bekliyor</span>
+                                            break;
+                                        case OrderStatus.Approved:
+                                            <span class="badge bg-success-subtle text-success">Onaylandı</span>
+                                            break;
+                                        case OrderStatus.Rejected:
+                                            <span class="badge bg-danger-subtle text-danger">Reddedildi</span>
+                                            break;
+                                        case OrderStatus.Shipped:
+                                            <span class="badge bg-info-subtle text-info-emphasis">Kargoda</span>
+                                            break;
+                                        case OrderStatus.Completed:
+                                            <span class="badge bg-primary-subtle text-primary">Tamamlandı</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a asp-controller="Order" asp-action="Detail" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+@model MiniB2B.Core.Models.LoginViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Yönetici Girişi";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yönetici Girişi - Mini B2B Yönetim Paneli</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .admin-login-card {
+            width: 100%;
+            max-width: 440px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .admin-login-header {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 30px 24px;
+            text-align: center;
+            border-bottom: 3px solid #eab308;
+        }
+    </style>
+</head>
+<body>
+    <div class="container p-3">
+        <div class="admin-login-card mx-auto">
+            <div class="admin-login-header">
+                <div class="d-inline-flex p-3 rounded-circle bg-dark-subtle text-warning mb-2">
+                    <i class="bi bi-shield-lock-fill fs-2"></i>
+                </div>
+                <h4 class="fw-bold mb-1">Yönetici Giriş Paneli</h4>
+                <small class="text-white-50">Sistem yönetim konsoluna erişim</small>
+            </div>
+
+            <div class="p-4 p-md-5">
+                <form asp-action="Login" method="post">
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="UsernameOrEmail" class="form-label small fw-bold text-muted">Yönetici Kullanıcı Adı veya E-posta</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-fill-lock"></i></span>
+                            <input asp-for="UsernameOrEmail" class="form-control" placeholder="ornekkullanici@b2b.com" autofocus />
+                        </div>
+                        <span asp-validation-for="UsernameOrEmail" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label small fw-bold text-muted">Yönetici Şifresi</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                            <input asp-for="Password" class="form-control" placeholder="••••••••" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" asp-for="RememberMe">
+                        <label class="form-check-label small text-muted" asp-for="RememberMe">
+                            Oturumumu açık tut
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100 py-2 fw-semibold">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Yönetim Paneline Giriş Yap
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="small text-muted text-decoration-none">
+                        <i class="bi bi-arrow-left me-1"></i> Müşteri Portalı / Kataloğa Dön
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+@model MiniB2B.Core.Models.ProductCreateEditDto
+@{
+    ViewData["Title"] = "Ürün Düzenle - " + Model.ProductCode;
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-3 mb-4 border-bottom">
+    <div>
+        <h2 class="h3 fw-bold mb-0">Ürün Bilgilerini Düzenle</h2>
+        <small class="text-muted"><code>@Model.ProductCode</code> kodlu ürünü güncelliyorsunuz</small>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Ürün Listesine Dön
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm p-4">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="ProductCode" class="form-label fw-semibold small"></label>
+                        <input asp-for="ProductCode" class="form-control text-uppercase" />
+                        <span asp-validation-for="ProductCode" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="Name" class="form-label fw-semibold small"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="CategoryId" class="form-label fw-semibold small"></label>
+                        <select asp-for="CategoryId" asp-items="ViewBag.CategoryList" class="form-select">
+                            <option value="">-- Kategori Seçiniz --</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Brand" class="form-label fw-semibold small"></label>
+                        <input asp-for="Brand" class="form-control" />
+                        <span asp-validation-for="Brand" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="ManufacturerCode" class="form-label fw-semibold small"></label>
+                        <input asp-for="ManufacturerCode" class="form-control" />
+                        <span asp-validation-for="ManufacturerCode" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Price" class="form-label fw-semibold small"></label>
+                        <div class="input-group">
+                            <input asp-for="Price" class="form-control" type="number" step="0.01" min="0.01" />
+                            <span class="input-group-text">₺</span>
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="StockQuantity" class="form-label fw-semibold small"></label>
+                        <input asp-for="StockQuantity" class="form-control" type="number" min="0" />
+                        <span asp-validation-for="StockQuantity" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="CriticalStockLevel" class="form-label fw-semibold small"></label>
+                        <input asp-for="CriticalStockLevel" class="form-control" type="number" min="0" />
+                        <span asp-validation-for="CriticalStockLevel" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="SpecialCode1" class="form-label fw-semibold small"></label>
+                        <input asp-for="SpecialCode1" class="form-control" />
+                        <span asp-validation-for="SpecialCode1" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SpecialCode2" class="form-label fw-semibold small"></label>
+                        <input asp-for="SpecialCode2" class="form-control" />
+                        <span asp-validation-for="SpecialCode2" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="ImageUrl" class="form-label fw-semibold small"></label>
+                        <input asp-for="ImageUrl" class="form-control" />
+                        <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="mt-2">
+                                <img src="@Model.ImageUrl" alt="Mevcut Görsel" class="product-thumb" />
+                                <small class="text-muted ms-2">Mevcut görsel önizleme</small>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Yeni Görsel Yükle</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                        @Html.ValidationMessage("imageFile", new { @class = "text-danger small d-block mt-1" })
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-semibold small"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" asp-for="IsActive">
+                    <label class="form-check-label fw-semibold small" asp-for="IsActive">
+                        Ürün Satışta ve Aktif
+                    </label>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+                        <i class="bi bi-check2-circle me-1"></i> Değişiklikleri Kaydet
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">İptal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
