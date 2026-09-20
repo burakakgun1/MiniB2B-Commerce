@@ -1,37 +1,29 @@
+# Mini B2B E-Ticaret Projesi
+
 ## 1. Kullanılan Teknolojiler
 
 * **Backend:** .NET 8, C# 12
-* **Web Çatısı:** ASP.NET Core MVC (Areas destekli, Razor View Engine)
-* **Veritabanı & ORM:** Microsoft SQL Server / LocalDB, Entity Framework Core 8
-* **Güvenlik:** Cookie Authentication (`[Authorize]` ve Role bazlı erişim), PBKDF2 (HMAC-SHA256, 100.000 iterasyon + Salt)
-* **Frontend:** Bootstrap 5, Bootstrap Icons, Vanilla JS (AJAX hızlı sipariş ve modal pencereler)
+* **Web Çatısı:** ASP.NET Core MVC (Areas destekli Admin Paneli)
+* **Veritabanı & ORM:** Microsoft SQL Server, Entity Framework Core 8
+* **Güvenlik:** Cookie Authentication (`[Authorize]` ve Rol bazlı yetkilendirme), PBKDF2 (HMAC-SHA256, 100.000 iterasyon + 16 byte Salt)
+* **Frontend:** Bootstrap 5, Bootstrap Icons, Vanilla JavaScript (AJAX ile hızlı sipariş ve modal ürün detayı)
 
 ---
 
-## 2. Veritabanı ve Kurulum Scripti
+## 2. Gereksinimler
 
-Proje varsayılan olarak **SQL Server LocalDB** üzerinde çalışacak şekilde yapılandırılmıştır.
-
-* **Otomatik Kurulum :** Uygulamayı ilk kez çalıştırdığınızda EF Core (`EnsureCreatedAsync` ve `DbInitializer`) veritabanını, tabloları, ilişkileri, örnek B2B ürünlerini, kategorileri ve dinamik grid ayarlarını otomatik olarak oluşturur. Ekstra bir SQL komutu çalıştırmanıza gerek yoktur.
-* **Manuel SQL Scripti:** Eğer tabloları ve örnek kayıtları doğrudan SQL Server Management Studio (SSMS) üzerinden kendiniz çalıştırmak isterseniz, proje kök dizinindeki hazır SQL dosyası kullanılabilir:
-  * **Dosya Yolu:** `sql/schema.sql`
-  * Bu dosya tüm tabloları (`Users`, `Products`, `Categories`, `Carts`, `CartItems`, `Orders`, `OrderItems`, `GridColumnConfigs`, `SliderItems`), Primary/Foreign Key kısıtlarını, Unique indeksleri ve örnek başlangıç kayıtlarını içerir.
-
-> **Bağlantı Ayarı (`appsettings.json`):**
-> ```json
-> "ConnectionStrings": {
->   "DefaultConnection": "Server=(localdb)\\MiniB2BDb;Database=MiniB2BCommerceDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
-> }
-> ```
-> *(Farklı bir SQL Server örneği kullanmak isterseniz sadece bu connection string'i güncellemeniz yeterlidir).*
+* .NET 8 SDK
+* Microsoft SQL Server
+* Git
+* Güncel bir web tarayıcısı
 
 ---
 
-## 3. Projenin Çalıştırılması
+## 3. Kurulum ve Çalıştırma
 
-Projeyi bilgisayarınızda ayağa kaldırmak için aşağıdaki adımları terminal veya komut satırından izleyebilirsiniz:
+Projeyi bilgisayarınızda ayağa kaldırmak için terminalden aşağıdaki adımları çalıştırabilirsiniz:
 
-1. **Bağımlılıkları ve Projeyi Derleyin:**
+1. **Projeyi Derleyin:**
    ```bash
    dotnet build
    ```
@@ -42,35 +34,62 @@ Projeyi bilgisayarınızda ayağa kaldırmak için aşağıdaki adımları termi
    ```
 
 3. **Tarayıcıdan Açın:**
+   Uygulama başladığında terminalde belirtilen localhost adresi üzerinden erişilebilir:
    * **Müşteri / Katalog Portalı:** `http://localhost:5016`
    * **Yönetici Giriş Paneli:** `http://localhost:5016/Admin`
 
 ---
 
-## 4. Test Kullanıcı Bilgileri
+## 4. Veritabanı Yapılandırması
 
-Sistemde müşteri ve yönetici girişleri güvenlik gereği ayrı tutulmuştur:
+Bağlantı dizesi `appsettings.json` dosyasında yerel varsayılan SQL Server örneğine (`Server=.`) ayarlanmıştır:
 
-| Rol | Giriş Adresi | Kullanıcı Adı / E-posta | Şifre | Yetki ve Kapsam |
-|---|---|---|---|---|
-| **Yönetici (Admin)** | `/Admin/Account/Login` | `admin` veya `admin@b2b.com` | `Admin123*` | Ürün, sipariş, kullanıcı, slider ve grid kolon yönetimi |
-| **Müşteri (Customer)** | `/Account/Login` | `b2bmusteri` veya `musteri@b2b.com` | `Musteri123*` | Katalog arama, satırdan hızlı sipariş, sepet ve siparişlerim |
-| **Müşteri 2 (Customer)** | `/Account/Login` | `alfasanayi` veya `alfa@sanayi.com` | `Alfa123*` | Alternatif müşteri hesabı |
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=.;Database=MiniB2BCommerceDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
+}
+```
+*(Farklı bir SQL Server instance'ı kullanıyorsanız — örneğin `Server=.\\SQLEXPRESS;` — yalnızca buradaki sunucu adını güncellemeniz yeterlidir).*
+
+Veritabanını iki şekilde ayağa kaldırabilirsiniz:
+
+* **Otomatik Kurulum:** Uygulamayı çalıştırdığınızda `EnsureCreatedAsync` ve `DbInitializer` devreye girer; `MiniB2BCommerceDb` veritabanını, tabloları, ilişkileri, örnek B2B ürünlerini, kategorileri, slider ve test kullanıcılarını SQL Server üzerinde otomatik oluşturur. Ekstra bir SQL komutu çalıştırmanıza gerek yoktur.
+* **Manuel SQL Scripti:** Tabloları ve verileri SQL Server Management Studio (SSMS) üzerinden kendiniz çalıştırmak isterseniz proje kök dizinindeki `sql/schema.sql` dosyasını kullanabilirsiniz. Bu script, projedeki EF Core modelleri ve başlangıç verileriyle birebir aynı şemayı oluşturur.
 
 ---
 
-## 5. Mimari Tercihleri ve Nedenleri
+## 5. Test Kullanıcı Bilgileri
 
-* **Çok Katmanlı Mimari (N-Tier):**
-  * `Core`, `DataAccess`, `Business` ve `Web` katmanlarına bölünmüştür.
-  * **Nedeni:** İş kurallarını (stok doğrulaması, sipariş oluşturma transaction'ı vb.) Controller'lardan ayırarak yarın bir mobil uygulama veya ERP entegrasyonu (Logo, SAP) bağlandığında kod tekrarı yapmadan aynı servisleri doğrudan kullanabilmek.
-* **İnce Controller (Thin Controllers):**
-  * Controller sınıfları yalnızca HTTP isteklerini karşılar, validasyon yapar ve servisi çağırır. Veritabanı sorguları veya karmaşık hesaplamalar doğrudan servis katmanında yürütülür.
-* **Veritabanından Yapılandırılabilir B2B Grid:**
-  * Ürün listeleme ekranındaki kolonlar kodda sabit tutulmamış, `GridColumnConfigs` tablosundan dinamik render edilmiştir.
-  * **Nedeni:** B2B projelerinde her bayinin veya projenin ihtiyaç duyduğu kolon sırası, genişliği ve mobil görünürlüğü kod değiştirmeden yönetim panelinden anında değiştirilebilir.
-* **Sunucu Taraflı SQL Filtreleme ve Sayfalama:**
-  * Ürün arama (kod, ad, marka, üretici kodu, özel kodlar, açıklama) ve sayfalama işlemleri `EF.Functions.Like` ve `Skip/Take` ile doğrudan SQL Server üzerinde çalıştırılır.
-  * **Nedeni:** Binlerce ürün içeren B2B kataloglarında tüm verinin belleğe çekilmesini önleyip sunucu performansını korumak.
-* **Fiyat Snapshot Koruması:**
-  * Sipariş verildiği andaki ürün fiyatı ve ürün kodu `OrderItems` tablosuna bağımsız olarak kopyalanır. Ürün fiyatı sonradan değişse bile geçmiş siparişin satın alınan fiyatı değişmez.
+Sistemde yönetici ve müşteri hesapları rol bazlı olarak ayrılmıştır. Kullanıcılar hem kullanıcı adı hem de e-posta ile giriş yapabilir:
+
+| Rol | Giriş Adresi | Kullanıcı Adı / E-posta | Şifre | Yetki ve Kapsam |
+|---|---|---|---|---|
+| **Yönetici (Admin)** | `/Admin/Account/Login` | `admin` veya `admin@b2b.com` | `Admin123*` | Ürün, kullanıcı, sipariş, slider ve dinamik grid kolon yönetimi |
+| **Müşteri (Customer)** | `/Account/Login` | `b2bmusteri` veya `musteri@b2b.com` | `Musteri123*` | Katalog arama/filtreleme, satırdan hızlı sipariş, sepet ve siparişlerim |
+| **Müşteri 2 (Customer)** | `/Account/Login` | `alfasanayi` veya `alfa@sanayi.com` | `Alfa123*` | Alternatif bayi hesabı |
+
+> **Not:** Bu kullanıcılar yalnızca geliştirme ve test amaçlı oluşturulmuştur. Müşteri hesaplarının Admin paneline erişimi güvenlik gereği engellenmiştir; yetkisiz erişim denendiğinde yönetici giriş ekranına yönlendirilir.
+
+---
+
+## 6. Mimari Tercihler ve Nedenleri
+
+Projeyi Core, DataAccess, Business ve Web olmak üzere dört katmana ayırdım.:
+
+```
+MiniB2B.Web  ──▶  MiniB2B.Business  ──▶  MiniB2B.DataAccess  ──▶  MiniB2B.Core
+```
+
+* **Core:** Varlık sınıfları (Product, User, Order vb.), enum'lar, DTO'lar ve şifreleme servisi (`PasswordHasher`). Başka hiçbir katmana bağımlılığı yoktur.
+* **DataAccess:** EF Core `DbContext`, Fluent API tablo eşlemeleri ve `DbInitializer` seed verileri.
+* **Business:** İş kuralları, stok doğrulamaları, sepet hesaplamaları, transaction yönetimi ve servis sınıfları.
+* **Web:** Controller sınıfları (Customer ve Admin Areas), Razor View'lar ve arayüz varlıkları.
+
+### Neden Bu Yaklaşımı Tercih Ettim?
+
+* **İnce Controller (Thin Controllers):** Controller sınıflarını sadece HTTP isteklerini karşılayıp servisleri çağıracak şekilde sade tuttum. Veritabanı işlemlerini ve iş mantığını tamamen Business katmanına taşıdım. Bu yapı sayesinde ileride mobil API veya ERP entegrasyonu eklenmesi durumunda iş kurallarının tekrar yazılmasının önüne geçilmesi amaçlandı.
+* **Veritabanından Yönetilebilir B2B Grid:** Ürün tablosundaki kolonları kod içinde sabit tutmak yerine `GridColumnConfigs` tablosuna bağladım. Hangi alanın gösterileceği, sırası, render stratejisi (resim, link, metin, stok rozeti, fiyat, buton) ve mobil/tablet görünürlüğü kod değiştirmeden Admin panelindeki **"Grid Yapılandırması"** ekranından yönetilebiliyor.
+* **Backend Seviyesinde Stok Doğrulaması:** Stok kontrolünü yalnızca arayüzde bırakmadım. Sipariş oluşturma sırasında veritabanı transaction'ı (`BeginTransactionAsync`) içinde ürünlerin anlık stokları kontrol ediliyor. Sepetteki herhangi bir ürünün stoğu yetersizse işlem geri alınıp kullanıcıya anlaşılır bir hata mesajı veriliyor (`"{Ürün Adı} için yeterli stok bulunmamaktadır. Mevcut stok: {Adet}."`). Stoklar yeterliyse ürün stokları anlık düşülüp sipariş tamamlanıyor.
+* **Fiyat Snapshot Koruması:** Sipariş verildiği andaki ürün fiyatı ve ürün kodu `OrderItems` tablosuna bağımsız olarak kopyalanır. Ürünün güncel fiyatı sonradan değişse bile geçmiş siparişlerdeki satın alınan fiyat korunur.
+* **Sunucu Taraflı SQL Sorguları:** Arama (kod, ad, marka, üretici kodu, özel kodlar, açıklama) ve sayfalama işlemlerini tüm veriyi belleğe çekmeden; `EF.Functions.Like`, `Skip` ve `Take` ile doğrudan SQL Server üzerinde çalıştırdım.
+* **Ürün Bazlı Kritik Stok Göstergesi:** Ham stok adedi yerine B2B kullanımına uygun yeşil (Var), sarı (Kritik) ve kırmızı (Yok) rozetler kullandım. Kritik seviyeyi sabit bir sayı yerine her ürünün kendi `CriticalStockLevel` eşiğine göre dinamik hesaplattım.

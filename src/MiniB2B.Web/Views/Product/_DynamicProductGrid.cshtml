@@ -100,13 +100,24 @@ else
                                         break;
 
                                     case GridRenderType.StockBadge:
-                                        if (product.StockStatus == StockStatus.OutOfStock)
+                                        switch (product.StockStatus)
                                         {
-                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Tükendi</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted small">-</span>
+                                            case StockStatus.InStock:
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                                    <i class="bi bi-check-circle me-1"></i>Var
+                                                </span>
+                                                break;
+                                            case StockStatus.Critical:
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>Kritik
+                                                </span>
+                                                break;
+                                            case StockStatus.OutOfStock:
+                                            default:
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
+                                                    <i class="bi bi-x-circle me-1"></i>Yok
+                                                </span>
+                                                break;
                                         }
                                         break;
 

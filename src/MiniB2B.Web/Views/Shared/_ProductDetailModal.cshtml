@@ -65,13 +65,30 @@
                                         <th class="bg-light">Özel Kod 2</th>
                                         <td>@(Model.SpecialCode2 ?? "-")</td>
                                     </tr>
-                                    @if (Model.StockStatus == StockStatus.OutOfStock)
-                                    {
-                                        <tr>
-                                            <th class="bg-light">Durum</th>
-                                            <td><span class="text-danger fw-bold">Tükendi</span></td>
-                                        </tr>
-                                    }
+                                    <tr>
+                                        <th class="bg-light">Stok Durumu</th>
+                                        <td>
+                                            @switch (Model.StockStatus)
+                                            {
+                                                case StockStatus.InStock:
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                                        <i class="bi bi-check-circle me-1"></i>Var (@Model.StockQuantity Adet)
+                                                    </span>
+                                                    break;
+                                                case StockStatus.Critical:
+                                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>Kritik Seviye (@Model.StockQuantity Adet)
+                                                    </span>
+                                                    break;
+                                                case StockStatus.OutOfStock:
+                                                default:
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
+                                                        <i class="bi bi-x-circle me-1"></i>Yok (0 Adet)
+                                                    </span>
+                                                    break;
+                                            }
+                                        </td>
+                                    </tr>
                                     <tr>
                                         <th class="bg-light">Birim Fiyat</th>
                                         <td class="fw-bold text-primary">@Model.Price.ToString("N2") ₺</td>
