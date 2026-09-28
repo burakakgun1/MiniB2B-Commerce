@@ -1,5 +1,11 @@
 # Mini B2B E-Ticaret Projesi
 
+Bu proje; toptan satış, bayi ağı ve kurumsal sipariş süreçlerini dijitalleştirmek amacıyla modern ve katmanlı mimari prensipleriyle geliştirilmiş bir **B2B (Business-to-Business) E-Ticaret platformudur**.
+
+Platform; bayilerin ürün kataloğunu dinamik bir tablo (grid) üzerinden inceleyip filtreleyebildiği, satırdan hızlı adet belirleyerek tek tıkla sepete ekleyebildiği ve geçmiş siparişlerini takip edebildiği kullanıcı dostu bir **Bayi Portalı** sunar. Aynı zamanda ürün, sipariş, kullanıcı, vitrin slider'ları ve veritabanından dinamik olarak yönetilebilen grid kolonlarının kontrol edildiği kapsamlı bir **Yönetici (Admin) Paneli** barındırır. Güçlü transaction tabanlı anlık stok doğrulama, fiyat snapshot koruması ve rol bazlı kimlik doğrulama altyapısıyla güvenilir, performanslı ve esnek bir B2B deneyimi hedeflenmiştir.
+
+---
+
 ## 1. Kullanılan Teknolojiler
 
 * **Backend:** .NET 8, C# 12
